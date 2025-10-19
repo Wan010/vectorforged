@@ -1,187 +1,384 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Bulk Vector Converter</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Bulk Vector Converter — Pay with USDT (TRC20)</title>
+  <meta name="description" content="Demo-ready production static site for bulk vector conversion with Direct-to-Wallet crypto payments (USDT TRC20)." />
   <style>
-    /* ======== Base Styles ======== */
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Poppins', sans-serif;
+    /* --------------------
+       Gradient-based modern UI (no external frameworks)
+       Single-file static site: HTML + CSS + JS
+       -------------------- */
+    :root{
+      --bg-a: linear-gradient(135deg,#0f172a 0%, #001219 40%, #001e3c 100%);
+      --accent-1: #00f5a0; /* mint */
+      --accent-2: #7c3aed; /* violet */
+      --card-bg: rgba(255,255,255,0.03);
+      --glass: rgba(255,255,255,0.04);
+      --muted: rgba(255,255,255,0.7);
+      --glass-border: rgba(255,255,255,0.06);
+      --success: #16a34a;
+      --danger: #ef4444;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+    }
+    html,body{height:100%;}
+    body{
+      margin:0;
+      min-height:100%;
+      background: radial-gradient(circle at 10% 10%, rgba(124,58,237,0.12), transparent 8%),
+                  radial-gradient(circle at 90% 80%, rgba(0,245,160,0.08), transparent 8%),
+                  var(--bg-a);
+      color: #e6eef8;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      padding:32px;
+      box-sizing:border-box;
     }
 
-    body {
-      background: linear-gradient(135deg, #6EE7B7, #3B82F6, #8B5CF6);
-      background-size: 300% 300%;
-      animation: gradientMove 12s ease infinite;
-      color: white;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
+    .container{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 420px;gap:28px;align-items:start}
+    header{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+    .brand{display:flex;gap:12px;align-items:center}
+    .logo{width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,var(--accent-1),var(--accent-2));display:flex;align-items:center;justify-content:center;font-weight:700;color:#02111a}
+    h1{font-size:20px;margin:0}
+    p.lead{margin:0;color:var(--muted);font-size:13px}
 
-    @keyframes gradientMove {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
+    /* left column: upload + pricing + flow */
+    .card{background:var(--card-bg);border:1px solid var(--glass-border);padding:20px;border-radius:12px;backdrop-filter:blur(6px)}
+    .upload-area{display:flex;flex-direction:column;gap:12px}
+    .drop{border:2px dashed rgba(255,255,255,0.05);padding:28px;border-radius:10px;display:flex;flex-direction:column;align-items:center;gap:8px}
+    .drop input[type=file]{display:none}
+    .btn{background:linear-gradient(90deg,var(--accent-1),var(--accent-2));padding:10px 14px;border-radius:10px;border:none;color:#00131a;font-weight:700;cursor:pointer}
+    .muted{color:var(--muted);font-size:13px}
 
-    header {
-      padding: 40px 20px 20px;
-      text-align: center;
-    }
+    .price-grid{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
+    .price{background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));padding:12px;border-radius:10px;width:160px}
+    .price strong{display:block;font-size:18px}
+    .small{font-size:12px;color:var(--muted)}
 
-    header h1 {
-      font-size: 2.5rem;
-      font-weight: 700;
-      letter-spacing: 1px;
-    }
+    /* right column: payment panel */
+    .pay-panel{position:sticky;top:32px}
+    .wallet{display:flex;flex-direction:column;gap:10px}
+    .address-box{background:var(--glass);padding:12px;border-radius:10px;border:1px solid var(--glass-border);display:flex;gap:8px;align-items:center}
+    .addr{font-family:monospace;overflow-wrap:anywhere;font-size:13px}
+    .copy{margin-left:auto;padding:8px 10px;border-radius:8px;background:transparent;border:1px solid rgba(255,255,255,0.04);cursor:pointer}
 
-    section {
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 20px;
-      padding: 30px;
-      width: 90%;
-      max-width: 800px;
-      margin-bottom: 30px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-      backdrop-filter: blur(10px);
-    }
+    .qr{display:flex;gap:12px;align-items:center}
+    .qr img{width:140px;height:140px;border-radius:8px;background:rgba(0,0,0,0.25);padding:8px}
 
-    h2 {
-      font-size: 1.5rem;
-      margin-bottom: 15px;
-      border-bottom: 1px solid rgba(255,255,255,0.3);
-      padding-bottom: 8px;
-    }
+    .confirm{display:grid;grid-template-columns:1fr auto;gap:10px;margin-top:12px}
+    .input{padding:10px;border-radius:8px;border:1px solid var(--glass-border);background:transparent;color:var(--muted)}
 
-    p {
-      font-size: 1rem;
-      line-height: 1.6;
-      margin-bottom: 15px;
-    }
+    .log{margin-top:16px;font-size:13px}
+    .log .row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px dashed rgba(255,255,255,0.02)}
 
-    input[type="file"], input[type="text"], button {
-      width: 100%;
-      padding: 12px;
-      border-radius: 10px;
-      border: none;
-      margin-top: 10px;
-      font-size: 1rem;
-    }
+    footer{grid-column:1/-1;margin-top:18px;color:var(--muted);font-size:13px;text-align:center}
 
-    input[type="file"], input[type="text"] {
-      background-color: rgba(255,255,255,0.8);
-      color: #333;
-    }
+    .pill{display:inline-block;padding:6px 10px;border-radius:999px;background:rgba(255,255,255,0.03);font-size:12px}
 
-    button {
-      background: linear-gradient(90deg, #34D399, #6366F1);
-      color: white;
-      cursor: pointer;
-      transition: 0.3s ease;
-    }
-
-    button:hover {
-      opacity: 0.9;
-      transform: translateY(-1px);
-    }
-
-    .wallet-box {
-      background: rgba(255,255,255,0.2);
-      padding: 20px;
-      border-radius: 15px;
-      text-align: center;
-      margin-top: 15px;
-    }
-
-    .wallet-box p {
-      font-size: 0.9rem;
-      margin-top: 10px;
-    }
-
-    .copy-btn {
-      background: rgba(255,255,255,0.3);
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 8px;
-      margin-top: 10px;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-
-    .copy-btn:hover {
-      background: rgba(255,255,255,0.4);
-    }
-
-    footer {
-      text-align: center;
-      padding: 20px;
-      opacity: 0.8;
-      font-size: 0.9rem;
+    /* small screens */
+    @media (max-width:980px){
+      .container{grid-template-columns:1fr;}
+      .pay-panel{position:relative;top:auto}
     }
   </style>
 </head>
 <body>
+  <div class="container">
+    <header>
+      <div class="brand">
+        <div class="logo">BV</div>
+        <div>
+          <h1>Bulk Vector Converter</h1>
+          <p class="lead">Upload many raster files and get vector-ready assets. Pay with USDT (TRC20) — Direct-to-Wallet.</p>
+        </div>
+      </div>
+      <nav>
+        <span class="pill">Demo — Production-ready static site</span>
+      </nav>
+    </header>
 
-  <header>
-    <h1>Bulk Vector Converter</h1>
-    <p>Convert images to vector files — fast, accurate, and secure.</p>
-  </header>
+    <!-- LEFT COLUMN -->
+    <main class="card">
+      <section>
+        <h2 style="margin-top:0">Upload & Convert (Mock)</h2>
+        <p class="muted">This page is a static, production-ready site for your bulk vector conversion workflow. The conversion process is mocked here — replace the "Start Conversion" handler with your backend processing later.</p>
 
-  <section>
-    <h2>Upload Files</h2>
-    <p>Select your images for conversion (up to 20 files).</p>
-    <input type="file" id="fileUpload" multiple accept=".jpg,.png,.jpeg,.pdf" />
-    <button onclick="alert('Demo only: Upload not functional in this version')">Start Conversion</button>
-  </section>
+        <div class="upload-area">
+          <label class="drop" id="dropzone">
+            <strong>Drag & drop files here</strong>
+            <span class="muted">Supports: .jpg .png .jpeg .bmp — multiple files allowed</span>
+            <button class="btn" id="browseBtn" type="button">Browse files</button>
+            <input id="fileInput" type="file" multiple accept="image/*" />
+          </label>
 
-  <section>
-    <h2>Pay with Crypto (USDT - TRC20)</h2>
-    <p>Once you’ve uploaded your files, please send payment to the wallet below:</p>
+          <div class="card" style="background:transparent;border:none;padding:12px 0">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div>
+                <strong id="fileCount">No files selected</strong>
+                <div class="muted" id="filesList">Select files to convert</div>
+              </div>
+              <div style="text-align:right">
+                <div class="muted">Estimated price</div>
+                <div style="font-weight:800;font-size:18px" id="estimatedPrice">—</div>
+              </div>
+            </div>
+            <div style="margin-top:12px;display:flex;gap:8px">
+              <button class="btn" id="startConvert">Start Conversion (Mock)</button>
+              <button class="btn" id="resetFiles" style="background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted)">Clear</button>
+            </div>
+          </div>
 
-    <div class="wallet-box">
-      <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=TY7g8vSExAMPLEjHdQ9tL3KfDFakeWALLET1" alt="Wallet QR" />
-      <p><strong>Wallet Address:</strong><br>
-      <span id="walletAddr">TY7g8vSExAMPLEjHdQ9tL3KfDFakeWALLET1</span></p>
-      <button class="copy-btn" onclick="copyWallet()">Copy Wallet Address</button>
-      <p><small>Network: TRON (TRC20)</small></p>
-    </div>
+          <h3 style="margin-bottom:6px">Pricing</h3>
+          <div class="price-grid">
+            <div class="price">
+              <div class="small">Per raster → vector (single image)</div>
+              <strong>₹199 / image</strong>
+              <div class="small">Bulk discounts available</div>
+            </div>
+            <div class="price">
+              <div class="small">Batch (50 images)</div>
+              <strong>₹7,999</strong>
+              <div class="small">~₹160 / image</div>
+            </div>
+            <div class="price">
+              <div class="small">Express (24h)</div>
+              <strong>+₹1,000</strong>
+              <div class="small">Priority queue</div>
+            </div>
+          </div>
+        </div>
+      </section>
 
-    <p><strong>Amount:</strong> $5 USDT per 10 files converted</p>
-  </section>
+      <section style="margin-top:18px">
+        <h3>How to use (Direct-to-Wallet)</h3>
+        <ol class="muted">
+          <li>Choose images and click <strong>Start Conversion</strong>.</li>
+          <li>On successful submission, you'll get a quoted amount in USDT (TRC20).</li>
+          <li>Send the exact USDT amount to the wallet address shown on the right.</li>
+          <li>Paste your TXID in the confirmation form and click <strong>Confirm Payment</strong>.</li>
+          <li>After verification (1–3 confirmations) we will process conversion and deliver files to your email.</li>
+        </ol>
+      </section>
 
-  <section>
-    <h2>Payment Confirmation</h2>
-    <p>After sending your payment, please enter your Transaction ID (TxID) below:</p>
-    <input type="text" id="txid" placeholder="Enter TxID..." />
-    <button onclick="confirmPayment()">Submit TxID</button>
-  </section>
+    </main>
 
-  <footer>
-    © 2025 Bulk Vector Converter | Crypto Payments (Demo)
-  </footer>
+    <!-- RIGHT COLUMN: PAYMENT PANEL -->
+    <aside class="pay-panel card">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <h3 style="margin:0">Pay with USDT (TRC20)</h3>
+          <div class="muted" style="margin-top:2px">Direct-to-Wallet — low fees</div>
+        </div>
+        <div class="pill">Static Wallet</div>
+      </div>
+
+      <div style="margin-top:12px" class="wallet">
+        <!-- Dummy address used for demonstration -->
+        <div class="address-box">
+          <div style="display:flex;flex-direction:column;gap:6px;">
+            <div class="small muted">USDT (TRC20)</div>
+            <div class="addr" id="walletAddr">TDummyAddressForDemo1234567890TRC20</div>
+          </div>
+          <button class="copy" id="copyAddrBtn" title="Copy address">Copy</button>
+        </div>
+
+        <div class="qr">
+          <img id="qrImg" alt="QR code for wallet" src="" />
+          <div style="flex:1">
+            <div class="muted">Scan to pay with your wallet app</div>
+            <div style="margin-top:8px;display:flex;gap:8px">
+              <button class="btn" id="generateInvoice">Generate Invoice (Quote)</button>
+              <button class="btn" id="showHow" style="background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--muted)">How to pay</button>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:12px">
+          <label class="small muted">Enter TXID (Transaction ID) after payment</label>
+          <div class="confirm">
+            <input id="txidInput" class="input" placeholder="Paste transaction hash here" />
+            <button class="btn" id="confirmPayment">Confirm Payment</button>
+          </div>
+          <div id="txMsg" class="muted" style="margin-top:8px"></div>
+        </div>
+
+        <div class="log" id="paymentLog">
+          <strong>Recent confirmations</strong>
+          <div id="logRows"></div>
+        </div>
+
+      </div>
+
+    </aside>
+
+    <footer>
+      <div>Made for <strong>Bulk Vector Conversion</strong> — Direct-to-Wallet payments (USDT TRC20). This is a static production-ready site. Replace the mocked conversion & verification flows with your backend later.</div>
+    </footer>
+  </div>
 
   <script>
-    function copyWallet() {
-      const wallet = document.getElementById('walletAddr').textContent;
-      navigator.clipboard.writeText(wallet);
-      alert('Wallet address copied to clipboard!');
-    }
+    /* --------------------------
+       Client-side JS (static site)
+       - Handles file selection, pricing estimate (mock)
+       - Generates QR using Google Chart API
+       - Copies address to clipboard
+       - Stores payment confirmations into localStorage (as demo persistence)
+       - Validates basic TXID pattern lengths
+       -------------------------- */
 
-    function confirmPayment() {
-      const txid = document.getElementById('txid').value.trim();
-      if (!txid) {
-        alert('Please enter a valid Transaction ID.');
+    const walletAddrEl = document.getElementById('walletAddr');
+    const qrImg = document.getElementById('qrImg');
+    const copyAddrBtn = document.getElementById('copyAddrBtn');
+    const fileInput = document.getElementById('fileInput');
+    const browseBtn = document.getElementById('browseBtn');
+    const dropzone = document.getElementById('dropzone');
+    const fileCount = document.getElementById('fileCount');
+    const filesList = document.getElementById('filesList');
+    const estimatedPrice = document.getElementById('estimatedPrice');
+    const startConvert = document.getElementById('startConvert');
+    const resetFiles = document.getElementById('resetFiles');
+    const generateInvoice = document.getElementById('generateInvoice');
+    const txidInput = document.getElementById('txidInput');
+    const confirmPayment = document.getElementById('confirmPayment');
+    const txMsg = document.getElementById('txMsg');
+    const logRows = document.getElementById('logRows');
+
+    // Dummy TRC20 USDT address (as requested)
+    const WALLET = walletAddrEl.textContent.trim();
+
+    // Helper: generate QR via Google Charts API
+    function setQR(address){
+      const payload = encodeURIComponent(address);
+      // Use a simple URI that many wallets understand: "tron:<address>?amount=..." — wallets might differ.
+      const uri = `tron:${address}`;
+      const src = `https://chart.googleapis.com/chart?chs=300x300&chld=M|0&cht=qr&chl=${encodeURIComponent(uri)}`;
+      qrImg.src = src;
+    }
+    setQR(WALLET);
+
+    copyAddrBtn.addEventListener('click', async ()=>{
+      try{
+        await navigator.clipboard.writeText(WALLET);
+        copyAddrBtn.textContent = 'Copied';
+        setTimeout(()=> copyAddrBtn.textContent = 'Copy',1200);
+      }catch(e){
+        alert('Failed to copy. Select and copy manually.');
+      }
+    });
+
+    // File handling (mock)
+    browseBtn.addEventListener('click', ()=> fileInput.click());
+    fileInput.addEventListener('change', updateFiles);
+    dropzone.addEventListener('drop', (e)=>{
+      e.preventDefault();
+      fileInput.files = e.dataTransfer.files;
+      updateFiles();
+    });
+    dropzone.addEventListener('dragover', (e)=>{e.preventDefault();});
+
+    function updateFiles(){
+      const files = Array.from(fileInput.files || []);
+      if(files.length===0){
+        fileCount.textContent = 'No files selected';
+        filesList.textContent = 'Select files to convert';
+        estimatedPrice.textContent = '—';
         return;
       }
-      alert('Thank you! Your payment confirmation has been recorded (demo mode).');
+      fileCount.textContent = `${files.length} file(s) selected`;
+      filesList.textContent = files.slice(0,6).map(f=>f.name).join(', ') + (files.length>6?` (+${files.length-6} more)`:'');
+
+      // Mock pricing rules
+      let per = 199; // ₹199 per image
+      let total = files.length * per;
+      // Bulk discount
+      if(files.length>=50) total = 7999; // example bucket
+
+      // Display price in INR, and an estimated USDT amount using a mock rate
+      const mockUSDRate = 1/83; // 1 INR ≈ 0.012 USD (placeholder) — this is for demo only
+      const inrToUsd = total * mockUSDRate;
+      const usdToUsdt = inrToUsd; // assume 1 USDT ~ 1 USD
+      estimatedPrice.textContent = `${total} INR / ~${usdToUsdt.toFixed(2)} USDT`;
+
+      // Save quote to session storage for invoice generation
+      sessionStorage.setItem('bv_last_quote', JSON.stringify({inr: total, usdt: Number(usdToUsdt.toFixed(2)), items: files.length}))
     }
+
+    resetFiles.addEventListener('click', ()=>{
+      fileInput.value = '';
+      updateFiles();
+    });
+
+    // Generate invoice (client-side): shows a short payment instruction with exact amount
+    generateInvoice.addEventListener('click', ()=>{
+      const q = JSON.parse(sessionStorage.getItem('bv_last_quote')||'null');
+      if(!q){
+        alert('Please select files to get a quote first.');
+        return;
+      }
+      const amount = q.usdt;
+      // Build a payment URI that includes amount. Tron wallets may or may not respect this param — users can always paste the address + amount.
+      const uri = `tron:${WALLET}?amount=${amount}`;
+      setQR(uri);
+      alert(`Invoice generated — Send exactly ${amount} USDT (TRC20) to the displayed wallet address. After payment, paste the TXID and click Confirm Payment.`);
+    });
+
+    // Payment confirmations: demo persistence in localStorage
+    function loadLog(){
+      const list = JSON.parse(localStorage.getItem('bv_payments')||'[]');
+      renderLog(list);
+    }
+    function renderLog(list){
+      logRows.innerHTML = '';
+      if(list.length===0){
+        logRows.innerHTML = '<div class="muted small">No confirmations yet</div>';
+        return;
+      }
+      list.slice().reverse().forEach(item=>{
+        const el = document.createElement('div');
+        el.className = 'row';
+        el.innerHTML = `<div style="max-width:65%"><strong>${item.usdt} USDT</strong><div class="muted small">${item.note||''}</div></div><div style="text-align:right"><div class="muted small">${new Date(item.at).toLocaleString()}</div><div style="font-family:monospace;font-size:12px">${item.txid.slice(0,12)}...${item.txid.slice(-8)}</div></div>`;
+        logRows.appendChild(el);
+      });
+    }
+
+    confirmPayment.addEventListener('click', ()=>{
+      const tx = txidInput.value.trim();
+      const q = JSON.parse(sessionStorage.getItem('bv_last_quote')||'{}');
+      if(!tx){ txMsg.textContent = 'Please paste a transaction ID (TXID).'; txMsg.style.color='var(--danger)'; return; }
+
+      // Basic TXID validation (very lenient — real verification requires blockchain lookup)
+      if(tx.length < 20){ txMsg.textContent = 'TXID looks too short — paste the full transaction hash.'; txMsg.style.color='var(--danger)'; return; }
+
+      const list = JSON.parse(localStorage.getItem('bv_payments')||'[]');
+      const record = {txid:tx, usdt: (q && q.usdt) || '—', at: Date.now(), note: `Files: ${(q && q.items) || '-'} `};
+      list.push(record);
+      localStorage.setItem('bv_payments', JSON.stringify(list));
+      txMsg.textContent = 'Payment recorded locally — (Demo) We recommend server-side verification and confirmation via blockchain explorer.';
+      txMsg.style.color = 'var(--success)';
+      txidInput.value = '';
+      loadLog();
+
+      // Restore QR to raw address after invoice flow
+      setTimeout(()=> setQR(WALLET), 800);
+    });
+
+    // Initialize
+    updateFiles();
+    loadLog();
+
+    // Optional: expose a small helper for admins to export the confirmations as CSV
+    window.exportPaymentsCSV = function(){
+      const data = JSON.parse(localStorage.getItem('bv_payments')||'[]');
+      if(!data.length){ alert('No data to export'); return; }
+      const rows = [['timestamp','txid','usdt','note']];
+      data.forEach(r=> rows.push([new Date(r.at).toISOString(), r.txid, r.usdt, r.note]));
+      const csv = rows.map(r=> r.map(cell=> '"'+String(cell).replace(/"/g,'""')+'"').join(',')).join('\n');
+      const blob = new Blob([csv], {type:'text/csv'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = 'bv_payments.csv'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+    }
+
   </script>
 </body>
 </html>
