@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Invoice to Crypto Tracker</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header>
+    <h1>💰 Invoice-to-Crypto Tracker</h1>
+    <nav>
+      <a href="#create">Create Invoice</a>
+      <a href="#list">Invoices</a>
+      <a href="#about">About</a>
+    </nav>
+  </header>
+
+  <main>
+    <!-- Create Invoice Section -->
+    <section id="create" class="card">
+      <h2>Create a New Invoice</h2>
+      <form id="invoiceForm">
+        <label>Client Name</label>
+        <input type="text" id="clientName" placeholder="Enter client name" required />
+
+        <label>Invoice Amount (USD)</label>
+        <input type="number" id="usdAmount" placeholder="Enter amount in USD" required />
+
+        <label>Select Crypto</label>
+        <select id="cryptoSelect">
+          <option value="bitcoin">Bitcoin (BTC)</option>
+          <option value="ethereum">Ethereum (ETH)</option>
+          <option value="tether">Tether (USDT)</option>
+        </select>
+
+        <button type="submit">Generate Invoice</button>
+      </form>
+
+      <div id="conversionResult" class="result-box"></div>
+    </section>
+
+    <!-- Invoice List Section -->
+    <section id="list" class="card">
+      <h2>Saved Invoices</h2>
+      <div id="invoiceList" class="invoice-list">
+        <p>No invoices yet. Create one above!</p>
+      </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="card">
+      <h2>About This Tool</h2>
+      <p>
+        This free tool helps freelancers and businesses easily convert invoice totals into crypto values using live market data.
+      </p>
+      <p>
+        Powered by <strong>CoinGecko API</strong> for real-time crypto prices.  
+        Built with ❤️ by <a href="https://github.com/yourusername" target="_blank">Your Name</a>.
+      </p>
+      <a href="https://ko-fi.com/yourname" target="_blank" class="donate-btn">☕ Support on Ko-fi</a>
+    </section>
+  </main>
+
+  <footer>
+    <p>© 2025 Invoice-to-Crypto Tracker | Built for Open Web</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
